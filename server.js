@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const connectDB = require('./config/db');
 
 // Route Handlers
@@ -13,16 +14,21 @@ const { notFound, errorHandler } = require('./middlewares/errorHandler');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Connect to MongoDB Atlas
-connectDB();
-
-const path = require('path');
-
 // Core Middlewares
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Ensure Database Connection for every incoming request (Serverless & Node)
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+  } catch (err) {
+    console.error('[DB Middleware Error]:', err.message);
+  }
+  next();
+});
 
 // JSON API Metadata Route
 app.get('/api', (req, res) => {
@@ -53,13 +59,12 @@ app.use('/api/users', userRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-// Start HTTP Server
-const server = app.listen(PORT, () => {
-  console.log(`[Server] Running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
-});
+// Start HTTP Server when run directly
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`[Server] Running on port ${PORT}`);
+  });
+}
 
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (err) => {
-  console.error(`[Unhandled Rejection] ${err.message}`);
-  server.close(() => process.exit(1));
-});
+// Export for Vercel Serverless
+module.exports = app;

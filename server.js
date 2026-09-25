@@ -20,14 +20,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Ensure Database Connection for every incoming request (Serverless & Node)
+// Ensure Database Connection for every incoming request
 app.use(async (req, res, next) => {
   try {
     await connectDB();
+    next();
   } catch (err) {
-    console.error('[DB Middleware Error]:', err.message);
+    next(err);
   }
-  next();
 });
 
 // JSON API Metadata Route

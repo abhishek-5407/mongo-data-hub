@@ -1,0 +1,46 @@
+### ==============================================================================
+### The Data Storm - API Request Test File (REST Client / Thunder Client)
+### ==============================================================================
+
+@baseUrl = http://localhost:5000
+@userId = 6ab67220547af7bd57a0ef2e
+@postId = 6ab67247547af7bd57a0ef2f
+
+### 1. Health Check
+GET {{baseUrl}}/
+Content-Type: application/json
+
+### 2. Create User (Author)
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "name": "Abhishek Sharma",
+  "email": "abhishek.dev@example.com"
+}
+
+### 3. Get All Users
+GET {{baseUrl}}/users
+Content-Type: application/json
+
+### 4. Create Post (Referencing Author)
+POST {{baseUrl}}/posts
+Content-Type: application/json
+
+{
+  "title": "Mastering MongoDB Atlas & Mongoose",
+  "content": "Live database persistence with strict schemas and relational population.",
+  "authorId": "{{userId}}"
+}
+
+### 5. Get All Posts (With Populated Author)
+GET {{baseUrl}}/posts
+Content-Type: application/json
+
+### 6. Get Top 3 Most Recent Posts (Phase 3 Aggregation / Sorting)
+GET {{baseUrl}}/posts/recent
+Content-Type: application/json
+
+### 7. Delete Post by ID
+DELETE {{baseUrl}}/posts/{{postId}}
+Content-Type: application/json

@@ -61,8 +61,13 @@ app.use(errorHandler);
 
 // Start HTTP Server when run directly
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => {
+  app.listen(PORT, async () => {
     console.log(`[Server] Running on port ${PORT}`);
+    try {
+      await connectDB();
+    } catch (err) {
+      console.error(`[Database Error] Startup connection failed: ${err.message}`);
+    }
   });
 }
 
